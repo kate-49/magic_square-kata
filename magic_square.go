@@ -10,15 +10,9 @@ import (
 type MagicSquare struct {
 	Input        []float64
 	Output       [][]float64
-	Row1         []float64
-	Row2         []float64
-	Row3         []float64
-	Diagonal1    []float64
-	Diagonal2    []float64
-	NonCorner1   []float64
-	NonCorner2   []float64
+	CenterNumber float64
+	NonCorners   []float64
 	options      [][]float64
-	finalOptions [][]float64
 }
 
 func CreateSquare() (MagicSquare, error) {
@@ -27,36 +21,24 @@ func CreateSquare() (MagicSquare, error) {
 	}
 	ms.findAllOptions(ms.Input, 9)
 	numberCount := ms.countIndividualElements()
-	middleSquare := findCentreElement(numberCount)
-	cornerElements := findCornerElements(numberCount)
-	//diagonal must be 2 corner elements and middle square
-	ms.Diagonal1, ms.Diagonal2 = ms.findDiagonals(cornerElements, middleSquare)
-	ms.removeElementFromOptions(ms.Diagonal1)
-	ms.removeElementFromOptions(ms.Diagonal2)
-	ms.nonCorners(cornerElements)
-	ms.removeElementFromOptions(ms.NonCorner1)
-	ms.removeElementFromOptions(ms.NonCorner2)
+	ms.findCentreElement(numberCount)
+	ms.findNonCornerElements(numberCount)
+	ms.removeElementFromOptions([]float64{ms.NonCorners[0], ms.CenterNumber, ms.NonCorners[1]})
+	ms.removeElementFromOptions([]float64{ms.NonCorners[2], ms.CenterNumber, ms.NonCorners[3]})
+	Row1 := ms.findLine(ms.NonCorners[0])
+	Row3 := ms.findLine(ms.NonCorners[1])
+	Col1 := ms.findLine(ms.NonCorners[2])
+	Col3 := ms.findLine(ms.NonCorners[3])
 
-	ms.Output = append(ms.Output, []float64{0, ms.NonCorner1[0], 0})
-	ms.Output = append(ms.Output, []float64{0, ms.NonCorner1[1], 0})
-	ms.Output = append(ms.Output, []float64{0, ms.NonCorner1[2], 0})
-	ms.Output[1][0] = ms.NonCorner2[0]
-	ms.Output[1][1] = ms.NonCorner2[1]
-	ms.Output[1][2] = ms.NonCorner2[2]
-	match1 := ms.findLine(ms.Output[0][1])
-	fmt.Println(match1)
-	match2 := ms.findLine(ms.Output[1][0])
-	fmt.Println(match2)
-	ms.Output[0][0] = findCommonElementFrom2Lines(match1, match2)
-	ms.Output[0][2] = getRemainingElement(match1, ms.Output[0][0], ms.Output[0][1])
-	ms.Output[2][0] = getRemainingElement(match2, ms.Output[0][0], ms.Output[1][0])
+	topLeft := findCommonElementFrom2Lines(Row1, Col1)
+	topRight := findCommonElementFrom2Lines(Row1, Col3)
 
-	match3 := ms.findLine(ms.Output[1][2])
-	ms.Output[2][2] = getRemainingElement(match3, ms.Output[0][2], ms.Output[1][0])
+	ms.Output = append(ms.Output, []float64{topLeft, ms.NonCorners[0], topRight})
+	ms.Output = append(ms.Output, []float64{ms.NonCorners[2], ms.CenterNumber, ms.NonCorners[3]})
 
-	ms.Row1 = ms.Output[0]
-	ms.Row2 = ms.Output[1]
-	ms.Row3 = ms.Output[2]
+	bottomLeft := findCommonElementFrom2Lines(Row3, Col1)
+	bottomRight := findCommonElementFrom2Lines(Row3, Col3)
+	ms.Output = append(ms.Output, []float64{bottomLeft, ms.NonCorners[1], bottomRight})
 	return ms, nil
 }
 
@@ -100,40 +82,24 @@ func (ms *MagicSquare) countIndividualElements() map[string]int {
 	return numberCount
 }
 
-func findCentreElement(numberCount map[string]int) float64 {
+func (ms *MagicSquare) findCentreElement(numberCount map[string]int) {
 	for k, v := range numberCount {
 		if v == 4 {
 			kAsInt, _ := strconv.ParseFloat(k, 64)
-			return kAsInt
+			ms.CenterNumber = kAsInt
 		}
 	}
-	return 0
 }
 
-func findCornerElements(numberCount map[string]int) []float64 {
+func (ms *MagicSquare) findNonCornerElements(numberCount map[string]int) {
 	elementsToReturn := []float64{}
 	for k, v := range numberCount {
-		if v == 3 {
+		if v == 2 {
 			kAsInt, _ := strconv.ParseFloat(k, 64)
 			elementsToReturn = append(elementsToReturn, kAsInt)
 		}
 	}
-	return elementsToReturn
-}
-
-func (ms *MagicSquare) findDiagonals(cornerElements []float64, centreSquare float64) ([]float64, []float64) {
-	returnElement := [][]float64{}
-
-	for _, s := range cornerElements {
-		for _, t := range ms.options {
-			if contains(t, s) {
-				if contains(t, centreSquare) {
-					returnElement = append(returnElement, t)
-				}
-			}
-		}
-	}
-	return returnElement[0], returnElement[1]
+	ms.NonCorners = elementsToReturn
 }
 
 func (ms *MagicSquare) removeElementFromOptions(element []float64) {
@@ -148,7 +114,7 @@ func (ms *MagicSquare) removeElementFromOptions(element []float64) {
 }
 
 func (ms *MagicSquare) nonCorners(cornerElements []float64) {
-	var nonCorners [][]float64
+	var nonCorners []float64
 	for _, t := range ms.options {
 		containsCorner := false
 		for _, s := range cornerElements {
@@ -157,11 +123,11 @@ func (ms *MagicSquare) nonCorners(cornerElements []float64) {
 			}
 		}
 		if containsCorner == false {
-			nonCorners = append(nonCorners, t)
+			nonCorners = append(nonCorners, t[0], t[2])
 		}
 	}
-	ms.NonCorner1 = nonCorners[0]
-	ms.NonCorner2 = nonCorners[1]
+
+	ms.NonCorners = nonCorners
 }
 
 func (ms *MagicSquare) findLine(elementToMatch float64) []float64 {
@@ -184,8 +150,8 @@ func findCommonElementFrom2Lines(line1 []float64, line2 []float64) float64 {
 	return 0
 }
 
-func getRemainingElement(line1 []float64, element1 float64, element2 float64) float64 {
-	for _, t := range line1 {
+func getRemainingElementFromLine(line []float64, element1 float64, element2 float64) float64 {
+	for _, t := range line {
 		if t != element1 && t != element2 {
 			return t
 		}

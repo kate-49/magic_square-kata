@@ -7,9 +7,9 @@ import (
 
 func Test_E2E_Rows(t *testing.T) {
 	ms, _ := CreateSquare()
-	assert.Equal(t, 9.0, findArraySum(ms.Row1))
-	assert.Equal(t, 9.0, findArraySum(ms.Row2))
-	assert.Equal(t, 9.0, findArraySum(ms.Row3))
+	assert.Equal(t, 9.0, findArraySum(ms.Output[0]))
+	assert.Equal(t, 9.0, findArraySum(ms.Output[1]))
+	assert.Equal(t, 9.0, findArraySum(ms.Output[2]))
 }
 
 //func Test_E2E_Columns(t *testing.T) {
@@ -40,25 +40,25 @@ func findArraySum(arr []float64) float64 {
 
 func createColumns(ms MagicSquare, element int) []float64 {
 	column := []float64{}
-	column = append(column, ms.Row1[element])
-	column = append(column, ms.Row2[element])
-	column = append(column, ms.Row3[element])
+	column = append(column, ms.Output[0][element])
+	column = append(column, ms.Output[1][element])
+	column = append(column, ms.Output[2][element])
 	return column
 }
 
 func createDiagonal1(ms MagicSquare) []float64 {
 	diagonal1 := []float64{}
-	diagonal1 = append(diagonal1, ms.Row1[0])
-	diagonal1 = append(diagonal1, ms.Row2[1])
-	diagonal1 = append(diagonal1, ms.Row3[2])
+	diagonal1 = append(diagonal1, ms.Output[0][0])
+	diagonal1 = append(diagonal1, ms.Output[1][1])
+	diagonal1 = append(diagonal1, ms.Output[2][2])
 
 	return diagonal1
 }
 
 func createDiagonal2(ms MagicSquare) []float64 {
 	diagonal2 := []float64{}
-	diagonal2 = append(diagonal2, ms.Row1[2])
-	diagonal2 = append(diagonal2, ms.Row2[1])
-	diagonal2 = append(diagonal2, ms.Row3[0])
+	diagonal2 = append(diagonal2, ms.Output[0][2])
+	diagonal2 = append(diagonal2, ms.Output[1][1])
+	diagonal2 = append(diagonal2, ms.Output[2][0])
 	return diagonal2
 }
