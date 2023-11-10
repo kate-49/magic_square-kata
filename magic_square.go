@@ -23,8 +23,7 @@ func CreateSquare() (MagicSquare, error) {
 	numberCount := ms.countIndividualElements()
 	ms.findCentreElement(numberCount)
 	ms.findNonCornerElements(numberCount)
-	ms.removeElementFromOptions([]float64{ms.NonCorners[0], ms.CenterNumber, ms.NonCorners[1]})
-	ms.removeElementFromOptions([]float64{ms.NonCorners[2], ms.CenterNumber, ms.NonCorners[3]})
+
 	Row1 := ms.findLine(ms.NonCorners[0])
 	Row3 := ms.findLine(ms.NonCorners[1])
 	Col1 := ms.findLine(ms.NonCorners[2])
@@ -99,6 +98,8 @@ func (ms *MagicSquare) findNonCornerElements(numberCount map[string]int) {
 			elementsToReturn = append(elementsToReturn, kAsInt)
 		}
 	}
+	ms.removeElementFromOptions([]float64{elementsToReturn[0], ms.CenterNumber, elementsToReturn[1]})
+	ms.removeElementFromOptions([]float64{elementsToReturn[2], ms.CenterNumber, elementsToReturn[3]})
 	ms.NonCorners = elementsToReturn
 }
 
