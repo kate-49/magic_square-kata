@@ -9,6 +9,7 @@ import (
 
 type MagicSquare struct {
 	Input        []float64
+	Output       [][]float64
 	Row1         []float64
 	Row2         []float64
 	Row3         []float64
@@ -36,8 +37,26 @@ func CreateSquare() (MagicSquare, error) {
 	ms.removeElementFromOptions(ms.NonCorner1)
 	ms.removeElementFromOptions(ms.NonCorner2)
 
-	fmt.Println("final elements")
-	fmt.Println(ms.options)
+	ms.Output = append(ms.Output, []float64{0, ms.NonCorner1[0], 0})
+	ms.Output = append(ms.Output, []float64{0, ms.NonCorner1[1], 0})
+	ms.Output = append(ms.Output, []float64{0, ms.NonCorner1[2], 0})
+	ms.Output[1][0] = ms.NonCorner2[0]
+	ms.Output[1][1] = ms.NonCorner2[1]
+	ms.Output[1][2] = ms.NonCorner2[2]
+	match1 := ms.findLine(ms.Output[0][1])
+	fmt.Println(match1)
+	match2 := ms.findLine(ms.Output[1][0])
+	fmt.Println(match2)
+	ms.Output[0][0] = findCommonElementFrom2Lines(match1, match2)
+	ms.Output[0][2] = getRemainingElement(match1, ms.Output[0][0], ms.Output[0][1])
+	ms.Output[2][0] = getRemainingElement(match2, ms.Output[0][0], ms.Output[1][0])
+
+	match3 := ms.findLine(ms.Output[1][2])
+	ms.Output[2][2] = getRemainingElement(match3, ms.Output[0][2], ms.Output[1][0])
+
+	ms.Row1 = ms.Output[0]
+	ms.Row2 = ms.Output[1]
+	ms.Row3 = ms.Output[2]
 	return ms, nil
 }
 
@@ -114,8 +133,6 @@ func (ms *MagicSquare) findDiagonals(cornerElements []float64, centreSquare floa
 			}
 		}
 	}
-	fmt.Println("final element")
-	fmt.Println(returnElement)
 	return returnElement[0], returnElement[1]
 }
 
@@ -145,6 +162,35 @@ func (ms *MagicSquare) nonCorners(cornerElements []float64) {
 	}
 	ms.NonCorner1 = nonCorners[0]
 	ms.NonCorner2 = nonCorners[1]
+}
+
+func (ms *MagicSquare) findLine(elementToMatch float64) []float64 {
+	for _, t := range ms.options {
+		if contains(t, elementToMatch) {
+			return t
+		}
+	}
+	return []float64{}
+}
+
+func findCommonElementFrom2Lines(line1 []float64, line2 []float64) float64 {
+	for _, t := range line1 {
+		for _, s := range line2 {
+			if t == s {
+				return t
+			}
+		}
+	}
+	return 0
+}
+
+func getRemainingElement(line1 []float64, element1 float64, element2 float64) float64 {
+	for _, t := range line1 {
+		if t != element1 && t != element2 {
+			return t
+		}
+	}
+	return 0
 }
 
 func contains(elems []float64, v float64) bool {
