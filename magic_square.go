@@ -151,15 +151,6 @@ func findCommonElementFrom2Lines(line1 []float64, line2 []float64) float64 {
 	return 0
 }
 
-func getRemainingElementFromLine(line []float64, element1 float64, element2 float64) float64 {
-	for _, t := range line {
-		if t != element1 && t != element2 {
-			return t
-		}
-	}
-	return 0
-}
-
 func contains(elems []float64, v float64) bool {
 	for _, s := range elems {
 		if v == s {
