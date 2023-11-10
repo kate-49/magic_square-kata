@@ -2,15 +2,17 @@ package magic_square_kata
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 )
 
 type MagicSquare struct {
-	Input   []float64
-	Row1    []int
-	Row2    []int
-	Row3    []int
-	options [][]float64
+	Input        []float64
+	Row1         []int
+	Row2         []int
+	Row3         []int
+	options      [][]float64
+	finalOptions [][]float64
 }
 
 func CreateSquare() (MagicSquare, error) {
@@ -28,7 +30,7 @@ func (ms *MagicSquare) findAllOptions(arr []float64, sum float64) [][]float64 {
 		for j := i + 1; j < len(arr); j++ {
 			for k := i + 1; k < len(arr); k++ {
 				if (arr[i]+arr[j]+arr[k] == sum) && (arr[i] != arr[j]) && (arr[j] != arr[k]) && (arr[i] != arr[k]) {
-					element, duplicate := ms.createNewElementAndCheckForDuplicates([]float64{arr[i], arr[j], arr[k]})
+					element, duplicate := ms.checkIfElementExistsAlready([]float64{arr[i], arr[j], arr[k]})
 					if !duplicate {
 						ms.options = append(ms.options, element)
 					}
@@ -39,16 +41,24 @@ func (ms *MagicSquare) findAllOptions(arr []float64, sum float64) [][]float64 {
 	return ms.options
 }
 
-func (ms *MagicSquare) createNewElementAndCheckForDuplicates(element []float64) ([]float64, bool) {
-	sort.Float64s(element)
+func (ms *MagicSquare) checkIfElementExistsAlready(newElement []float64) ([]float64, bool) {
+	sort.Float64s(newElement)
 	for _, s := range ms.options {
-		fmt.Println("element")
-		fmt.Println(element)
-		fmt.Println("s")
-		fmt.Println(s)
-		//if s == element {
-		//	return element, true
-		//}
+		sort.Float64s(s)
+		equal := reflect.DeepEqual(s, newElement)
+		if equal {
+			return nil, true
+		}
 	}
-	return element, false
+	return newElement, false
 }
+
+//func (ms *MagicSquare) createNewElementAndCheckForDuplicates(element []float64) ([]float64, bool) {
+//	sort.Float64s(element)
+//	for _, s := range ms.options {
+//		if ms.checkIfElementExistsAlready(s) == false {
+//
+//		}
+//	}
+//	return element, false
+//}
